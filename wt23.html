@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Plant & Seed Donation System</title>
+<style>
+:root{
+  --primary:#2d6a4f;
+  --secondary:#eafaf1;
+  --text:#333;
+  --card-bg:#fff;
+  --muted:#7a7a7a;
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Arial,sans-serif}
+body{min-height:100vh;display:flex;background:var(--secondary);color:var(--text)}
+
+/* AUTH */
+#auth{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80') center/cover fixed}
+.auth-box{width:360px;background:rgba(255,255,255,0.96);padding:24px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.auth-box h2{color:var(--primary);margin-bottom:10px;text-align:center}
+.auth-box input{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:1px solid #dcdcdc}
+.auth-box button{width:100%;padding:10px;margin-top:8px;border-radius:8px;background:var(--primary);color:#fff;border:none;cursor:pointer}
+.auth-box a{color:var(--primary);cursor:pointer;text-decoration:underline;display:inline-block;margin-top:8px}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:#fff;border-right:1px solid #e6e6e6;position:fixed;top:0;bottom:0;left:0;padding:18px;display:none;flex-direction:column;gap:8px;z-index:5;overflow:auto}
+.profile-row{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:10px}
+.profile-row img{width:100px;height:100px;border-radius:50%;border:3px solid var(--primary);object-fit:cover;margin-bottom:8px}
+.profile-name{font-weight:700;color:var(--primary)}
+.sidebar a,.sidebar button{display:block;text-align:left;padding:10px;border-radius:8px;border:none;background:none;color:var(--text);cursor:pointer;font-size:15px}
+.sidebar a:hover,.sidebar button:hover{background:#eef8ef;color:var(--primary)}
+.logout-btn{width:100%;background:var(--primary);color:#fff;border:none;padding:10px;border-radius:8px;margin-top:auto;cursor:pointer}
+
+/* CONTENT */
+.content{margin-left:280px;padding:22px;flex:1;display:none;min-height:100vh}
+.header-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.search-input{padding:10px;border-radius:8px;border:1px solid #ccc;width:320px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:18px}
+.card{background:var(--card-bg);padding:12px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.06);text-align:center;cursor:pointer}
+.card img{width:100%;height:150px;object-fit:cover;border-radius:8px;margin-bottom:10px}
+.small-btn{padding:8px 10px;border-radius:8px;border:none;background:var(--primary);color:#fff;cursor:pointer}
+.small-btn.ghost{background:transparent;color:var(--primary);border:1px solid var(--primary)}
+.form-section{max-width:900px;background:var(--card-bg);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-top:18px}
+.form-row{display:flex;gap:12px}
+.form-row input{flex:1;padding:10px;border-radius:8px;border:1px solid #ccc}
+.hidden{display:none}
+.center{text-align:center;margin-top:10px}
+.section-title{color:var(--primary);font-size:20px;margin-bottom:12px}
+
+/* popup */
+#plantPopup{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:30}
+.popupContent{background:#fff;padding:18px;border-radius:10px;max-width:420px;width:92%;box-shadow:0 8px 30px rgba(0,0,0,.25);text-align:left}
+.popupContent img{width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px}
+.popup-row{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+
+/* extras */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:12px}
+.stat-card{background:#fff;padding:16px;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,.06);text-align:center}
+.donor-list{display:grid;gap:12px;margin-top:12px}
+.donor-card{background:#fff;padding:12px;border-radius:10px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.donor-card img{width:60px;height:60px;border-radius:50%;object-fit:cover}
+.faq-item{margin-top:10px;background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+.gallery-grid img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+
+/* profile edit form */
+.profile-edit{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start}
+.profile-edit .profile-actions{display:flex;gap:8px;justify-content:center;margin-top:8px}
+
+/* requests */
+.request-card{padding:10px;border-radius:8px;border:1px solid #eee;margin-bottom:10px;background:#fafafa}
+
+/* comments */
+.comment-box{background:#f8fff9;padding:10px;border-radius:8px;margin-bottom:10px;border:1px solid #d8f3dc;}
+.comment-author{font-weight:600;color:var(--primary);}
+
+
+/* responsive */
+@media(max-width:900px){
+  .content{margin-left:0;padding:14px}
+  .sidebar{position:relative;width:100%;display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<section id="auth">
+  <div class="auth-box" id="loginBox">
+    <h2>Login</h2>
+    <input id="loginEmail" type="email" placeholder="Email" />
+    <input id="loginPassword" type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p style="text-align:center;margin-top:10px;">Don't have an account? <a onclick="showSignup()">Sign up</a></p>
+  </div>
+
+  <div class="auth-box hidden" id="signupBox">
+    <h2>Create account</h2>
+    <input id="signupName" type="text" placeholder="Full name" />
+    <input id="signupEmail" type="email" placeholder="Email" />
+    <input id="signupPassword" type="password" placeholder="Password" />
+    <button onclick="signup()">Create account</button>
+    <p style="text-align:center;margin-top:10px"><a onclick="showLogin()">Back to login</a></p>
+  </div>
+</section>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="profile-row">
+    <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
+    <div class="profile-name" id="profileLabel">Profile</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px" id="profileEmail">--</div>
+  </div>
+
+  <a onclick="showSection('home')">🏠 Home</a>
+  <a onclick="showSection('donate')">🌱 Donate Plant</a>
+  <a onclick="showSection('donateSeeds')">🌿 Donate Seeds</a>
+  <a onclick="showSection('exchangeSeeds')">🔄 Exchange Seeds</a>
+  <a onclick="showSection('requests')">📬 Requests</a>
+  <a onclick="showSection('care')">💬 Plant Care</a>
+  <a onclick="showSection('recent')">🕒 Recent Donations</a>
+  <a onclick="showSection('donors')">🏅 Top Donors</a>
+  <a onclick="showSection('stats')">📊 Statistics</a>
+  <a onclick="showSection('gallery')">📷 Gallery & Events</a>
+  <a onclick="showSection('profile')">👤 Profile</a>
+
+  <button class="logout-btn" onclick="logout()">🔓 Logout</button>
+</nav>
+
+<!-- CONTENT -->
+<main class="content" id="content">
+
+  <!-- HOME -->
+  <section id="homeSection">
+    <div class="header-row">
+      <h2>Available Plants & Seeds</h2>
+      <input id="searchInput" class="search-input" placeholder="Search plants/seeds..." oninput="renderHome()" />
+    </div>
+    <div id="homeGrid" class="grid"></div>
+  </section>
+
+  <!-- DONATE PLANT -->
+  <section id="donateSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">🌱 Donate a Plant</div>
+      <div class="form-row" style="flex-direction:column">
+        <input id="plantName" placeholder="Plant name" />
+        <input id="plantLocation" placeholder="Location (city/area)" />
+        <input id="plantImage" type="file" accept="image/*" />
+        <textarea id="plantDescription" rows="4" placeholder="Description"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="small-btn ghost" onclick="showSection('home')">Cancel</button>
+          <button class="small-btn" onclick="addPlant()">Donate Plant</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DONATE SEEDS -->
+  <section id="donateSeedsSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">🌿 Donate Seeds</div>
+      <div class="form-row" style="flex-direction:column">
+        <input id="seedName" placeholder="Seed name" />
+        <input id="seedQuantity" placeholder="Quantity (e.g., 50 packs)" />
+        <input id="seedLocation" placeholder="Location" />
+        <input id="seedImage" type="file" accept="image/*" />
+        <textarea id="seedDescription" rows="3" placeholder="Description"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="small-btn ghost" onclick="showSection('home')">Cancel</button>
+          <button class="small-btn" onclick="addSeed()">Donate Seeds</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXCHANGE SEEDS -->
+  <section id="exchangeSeedsSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">🔄 Exchange Seeds</div>
+      <div class="form-row" style="flex-direction:column">
+        <input id="exSeedName" placeholder="Seed name" />
+        <input id="exSeedQuantity" placeholder="Quantity" />
+        <input id="exSeedLocation" placeholder="Location" />
+        <input id="exSeedImage" type="file" accept="image/*" />
+        <textarea id="exSeedDescription" rows="3" placeholder="Description"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="small-btn ghost" onclick="showSection('home')">Cancel</button>
+          <button class="small-btn" onclick="addExchangeSeed()">Add Exchange</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  
+<!-- Requests -->
+<section id="requestsSection" class="hidden">
+  <div class="form-section">
+    <h3>Requests for my plants</h3>
+    <div id="requestList">
+      <p class="center">No requests yet.</p>
+    </div>
+  </div>
+</section>
+
+  <!-- PLANT CARE -->
+  <section id="careSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">💬 Plant Care Discussion</div>
+      <div id="discussionList"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input id="commentInput" placeholder="Share a tip or ask a question..." style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc"/>
+        <button class="small-btn" onclick="addComment()">Post</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RECENT DONATIONS -->
+  <section id="recentSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">🕒 Recent Donations</div>
+      <div id="recentList"><p class="center">No recent donations.</p></div>
+    </div>
+  </section>
+
+  <!-- TOP DONORS -->
+  <section id="donorsSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">🏅 Top Donors</div>
+      <div id="donorGrid" class="donor-list"></div>
+    </div>
+  </section>
+
+  <!-- STATISTICS -->
+  <section id="statsSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">📊 Community Statistics</div>
+      <div class="stats-grid">
+        <div class="stat-card"><h2 id="statUsers">0</h2><p>Registered Users</p></div>
+        <div class="stat-card"><h2 id="statPlants">0</h2><p>Plants Donated</p></div>
+        <div class="stat-card"><h2 id="statSeeds">0</h2><p>Seeds Donated</p></div>
+        <div class="stat-card"><h2 id="statExchanges">0</h2><p>Exchanges</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY & EVENTS -->
+  <section id="gallerySection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">📷 Gallery & Events</div>
+      <div id="galleryGrid" class="gallery-grid"></div>
+
+      <hr style="margin:18px 0">
+
+      <div style="margin-top:12px">
+        <div style="font-weight:700;margin-bottom:8px">Add Event</div>
+        <input id="eventTitle" placeholder="Event title" style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;margin-bottom:8px"/>
+        <input id="eventDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;margin-bottom:8px"/>
+        <textarea id="eventDesc" rows="3" placeholder="Short description" style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button class="small-btn" onclick="addEvent()">Add Event</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+
+  <!-- PROFILE -->
+  <section id="profileSection" class="hidden">
+    <div class="form-section">
+      <div class="section-title">👤 My Profile</div>
+
+      <div class="profile-edit">
+        <div style="text-align:center">
+          <img id="editProfilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width:110px;height:110px;border-radius:12px;object-fit:cover;border:3px solid var(--primary)">
+          <div style="margin-top:8px">
+            <input id="profilePicInput" type="file" accept="image/*" onchange="previewProfilePic(event)" />
+          </div>
+
+          <!-- Added Edit Profile & Delete Account buttons below picture -->
+          <div class="profile-actions" style="margin-top:10px">
+            <button class="small-btn ghost" onclick="openProfileEdit()">Edit Profile</button>
+            <button class="small-btn" onclick="deleteAccount()">Delete Account</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block;margin-bottom:6px">Full name</label>
+          <input id="profileNameInput" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc" />
+          <label style="display:block;margin:10px 0 6px">Email</label>
+          <input id="profileEmailInput" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc" />
+          <label style="display:block;margin:10px 0 6px">Address</label>
+          <input id="profileAddressInput" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc" />
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+            <button class="small-btn ghost" onclick="loadProfile()">Cancel</button>
+            <button class="small-btn" onclick="saveProfile()">Save Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:16px 0">
+
+      <div>
+        <h4 style="margin-bottom:8px">My Donations</h4>
+        <div id="myPlants" class="grid"></div>
+        <div id="mySeeds" class="grid" style="margin-top:10px"></div>
+        <div id="myExSeeds" class="grid" style="margin-top:10px"></div>
+      </div>
+    </div>
+  </section>
+
+
+
+</main>
+
+
+<!-- Plant Popup -->
+<div id="plantPopup">
+  <div class="popupContent">
+    <img id="popupImg" src="" alt="plant" />
+    <h3 id="popupName"></h3>
+    <p><strong>Location:</strong> <span id="popupLocation"></span></p>
+    <p><strong>Description:</strong> <span id="popupDescription"></span></p>
+    <input id="requestMessage" placeholder="Write a message to the owner" />
+    <div class="popup-row">
+      <button class="small-btn ghost" onclick="closePopup()">Close</button>
+      <button class="small-btn" onclick="sendRequest()">Send Request</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- JS -->
+<script>
+/* ---------- Data & Persistence ---------- */
+let users = JSON.parse(localStorage.getItem('users')) || []; // array of {name,email,password,address,avatar,plants,seeds,exchanges,requests}
+let comments = JSON.parse(localStorage.getItem('comments')) || [];
+let recent = JSON.parse(localStorage.getItem('recent')) || []; // recent donations
+let events = JSON.parse(localStorage.getItem('events')) || []; // events list
+let currentUser = null;
+let allPlants = [], allSeeds = [], allExSeeds = [];
+
+/* helpers */
+function persistUsers(){ localStorage.setItem('users', JSON.stringify(users)); }
+function persistComments(){ localStorage.setItem('comments', JSON.stringify(comments)); }
+function persistRecent(){ localStorage.setItem('recent', JSON.stringify(recent)); }
+function persistEvents(){ localStorage.setItem('events', JSON.stringify(events)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+function findUserIndexByEmail(email){
+  return users.findIndex(u=>u.email===email);
+}
+
+/* init */
+function rebuildAllItems(){
+  allPlants=[]; allSeeds=[]; allExSeeds=[];
+  users.forEach(u=>{
+    if(u.plants) u.plants.forEach(p=>allPlants.push({...p,owner:u.email}));
+    if(u.seeds) u.seeds.forEach(s=>allSeeds.push({...s,owner:u.email}));
+    if(u.exchanges) u.exchanges.forEach(e=>allExSeeds.push({...e,owner:u.email}));
+  });
+}
+
+/* ---------- AUTH ---------- */
+function showSignup(){ document.getElementById('loginBox').classList.add('hidden'); document.getElementById('signupBox').classList.remove('hidden'); }
+function showLogin(){ document.getElementById('signupBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); }
+
+function signup(){
+  const name=document.getElementById('signupName').value.trim();
+  const email=document.getElementById('signupEmail').value.trim().toLowerCase();
+  const pwd=document.getElementById('signupPassword').value.trim();
+  if(!name||!email||!pwd){ alert('Fill all fields'); return; }
+  if(users.find(u=>u.email===email)){ alert('Email already registered'); return; }
+  const newUser={name,email,password:pwd,address:'Not provided',avatar:'https://cdn-icons-png.flaticon.com/512/149/149071.png',plants:[],seeds:[],exchanges:[],requests:[]};
+  users.push(newUser); persistUsers();
+  alert('Account created — logging you in');
+  loginFromSignup(email,pwd);
+}
+
+function loginFromSignup(email,pwd){
+  const user=users.find(u=>u.email===email && u.password===pwd);
+  if(!user){ alert('Sign up error'); return; }
+  currentUser=user;
+  enterDashboard();
+}
+
+function login(){
+  const email=document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pwd=document.getElementById('loginPassword').value.trim();
+  const user=users.find(u=>u.email===email && u.password===pwd);
+  if(!user){ alert('Invalid credentials'); return; }
+  currentUser=user;
+  enterDashboard();
+}
+
+function logout(){
+  currentUser=null;
+  localStorage.removeItem('sessionUser');
+  document.getElementById('auth').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.getElementById('content').style.display='none';
+  // clear input fields to be safe
+  document.getElementById('loginEmail').value=''; document.getElementById('loginPassword').value='';
+}
+
+/* ---------- DASHBOARD ENTER ---------- */
+function enterDashboard(){
+  // show app
+  document.getElementById('auth').style.display='none';
+  document.getElementById('sidebar').style.display='flex';
+  document.getElementById('content').style.display='block';
+  // save session minimal
+  localStorage.setItem('sessionUser', currentUser.email);
+  // rebuild items and UI
+  rebuildAllItems();
+  renderHome();
+  renderGallery();
+  renderRecent();
+  renderDonors();
+  loadProfile();
+  renderComments();
+  updateStats();
+  showSection('home');
+}
+
+/* auto restore session */
+window.onload = () => {
+  const session = localStorage.getItem('sessionUser');
+  if(session){ const u=users.find(x=>x.email===session); if(u){ currentUser=u; enterDashboard(); return; } }
+  // show auth
+  document.getElementById('auth').style.display='flex';
+};
+
+/* ---------- ITEMS: add plant/seed/exchange ---------- */
+function readImageFile(file,cb){
+  if(!file){ cb(null); return; }
+  const r = new FileReader();
+  r.onload = e => cb(e.target.result);
+  r.readAsDataURL(file);
+}
+
+function addPlant(){
+  if(!currentUser){ alert('Login first'); return; }
+  const name=document.getElementById('plantName').value.trim();
+  const location=document.getElementById('plantLocation').value.trim();
+  const desc=document.getElementById('plantDescription').value.trim();
+  const file=document.getElementById('plantImage').files[0];
+  if(!name||!location||!desc||!file){ alert('Fill all fields & choose image'); return; }
+  readImageFile(file, (data)=>{
+    const plant={id:uid(),name,location,description:desc,img:data};
+    currentUser.plants.push(plant);
+    users = users.map(u => u.email===currentUser.email ? currentUser : u);
+    persistUsers();
+    rebuildAllItems();
+    // add to recent
+    recent.unshift({type:'plant',name,owner:currentUser.name,time:Date.now(),img:data});
+    if(recent.length>50) recent.pop();
+    persistRecent();
+    updateStats(); renderRecent(); renderDonors(); renderHome(); alert('Plant donated');
+    // clear
+    document.getElementById('plantName').value=''; document.getElementById('plantLocation').value=''; document.getElementById('plantDescription').value=''; document.getElementById('plantImage').value='';
+  });
+}
+
+function addSeed(){
+  if(!currentUser){ alert('Login first'); return; }
+  const name=document.getElementById('seedName').value.trim();
+  const qty=document.getElementById('seedQuantity').value.trim();
+  const loc=document.getElementById('seedLocation').value.trim();
+  const desc=document.getElementById('seedDescription').value.trim();
+  const file=document.getElementById('seedImage').files[0];
+  if(!name||!qty||!loc||!desc||!file){ alert('Fill all fields & choose image'); return; }
+  readImageFile(file,(data)=>{
+    const seed={id:uid(),name,quantity:qty,location:loc,description:desc,img:data};
+    currentUser.seeds.push(seed);
+    users = users.map(u => u.email===currentUser.email ? currentUser : u);
+    persistUsers();
+    rebuildAllItems();
+    recent.unshift({type:'seed',name,owner:currentUser.name,time:Date.now(),img:data});
+    if(recent.length>50) recent.pop();
+    persistRecent();
+    updateStats(); renderRecent(); renderDonors(); renderHome(); alert('Seeds donated');
+    // clear
+    document.getElementById('seedName').value=''; document.getElementById('seedQuantity').value=''; document.getElementById('seedLocation').value=''; document.getElementById('seedDescription').value=''; document.getElementById('seedImage').value='';
+  });
+}
+
+function addExchangeSeed(){
+  if(!currentUser){ alert('Login first'); return; }
+  const name=document.getElementById('exSeedName').value.trim();
+  const qty=document.getElementById('exSeedQuantity').value.trim();
+  const loc=document.getElementById('exSeedLocation').value.trim();
+  const desc=document.getElementById('exSeedDescription').value.trim();
+  const file=document.getElementById('exSeedImage').files[0];
+  if(!name||!qty||!loc||!desc||!file){ alert('Fill all fields & choose image'); return; }
+  readImageFile(file,(data)=>{
+    const ex={id:uid(),name,quantity:qty,location:loc,description:desc,img:data};
+    currentUser.exchanges.push(ex);
+    users = users.map(u => u.email===currentUser.email ? currentUser : u);
+    persistUsers();
+    rebuildAllItems();
+    recent.unshift({type:'exchange',name,owner:currentUser.name,time:Date.now(),img:data});
+    if(recent.length>50) recent.pop();
+    persistRecent();
+    updateStats(); renderRecent(); renderDonors(); renderHome(); alert('Exchange added');
+    // clear
+    document.getElementById('exSeedName').value=''; document.getElementById('exSeedQuantity').value=''; document.getElementById('exSeedLocation').value=''; document.getElementById('exSeedDescription').value=''; document.getElementById('exSeedImage').value='';
+  });
+}
+/* Refresh Home */
+function refreshHome(){
+  rebuildAllPlants();
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const grid = document.getElementById('homeGrid'); grid.innerHTML='';
+  const visible = allPlants.filter(p => p.name.toLowerCase().includes(q) || p.location.toLowerCase().includes(q));
+  if(visible.length===0){ grid.innerHTML='<p class="center">No plants found.</p>'; return; }
+  visible.forEach(p=>{
+    const div = document.createElement('div'); div.className='card';
+    div.innerHTML = `<img src="${p.img}"><h4>${p.name}</h4><p><strong>Location:</strong> ${p.location}</p>`;
+    div.onclick=()=>openPopup(p.id); grid.appendChild(div);
+  });
+}
+/* Popup */
+function openPopup(id){
+  currentPlantId=id;
+  const p = allPlants.find(x=>x.id===id); if(!p) return;
+  document.getElementById('popupImg').src=p.img;
+  document.getElementById('popupName').textContent=p.name;
+  document.getElementById('popupLocation').textContent=p.location;
+  document.getElementById('popupDescription').textContent=p.description;
+  document.getElementById('requestMessage').value='';
+  document.getElementById('plantPopup').style.display='flex';
+}
+function closePopup(){ document.getElementById('plantPopup').style.display='none'; currentPlantId=null; }
+
+/* Send Request */
+function sendRequest(){
+  const msg=document.getElementById('requestMessage').value.trim(); if(!msg){ alert('Enter message'); return; }
+  const plant=allPlants.find(x=>x.id===currentPlantId); if(!plant){ alert('Plant not found'); return; }
+  if(plant.owner===currentUser.email){ alert('Cannot request your own plant'); return; }
+  const owner=users.find(u=>u.email===plant.owner); if(!owner){ alert('Owner not found'); return; }
+  owner.requests=owner.requests||[]; owner.requests.push({ id: uid(), from: currentUser.email, message: msg, plantId:plant.id, plantName:plant.name, time:new Date().toISOString() });
+  users = users.map(u=>u.email===owner.email?owner:u); persistUsers();
+  alert('Request sent'); closePopup();
+}
+
+/* ---------- DISPLAY: home, recent, donors, gallery ---------- */
+function renderHome(){
+  rebuildAllItems();
+  const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  const grid=document.getElementById('homeGrid');
+  grid.innerHTML='';
+  const items=[...allPlants,...allSeeds,...allExSeeds].filter(x=>x.name.toLowerCase().includes(q) || (x.location && x.location.toLowerCase().includes(q)));
+  if(items.length===0){ grid.innerHTML='<p class="center">No items found.</p>'; return; }
+  items.forEach(item=>{
+    const div=document.createElement('div'); div.className='card';
+    // keep same look — clicking anywhere opens popup (which shows only Request per your choice)
+    div.innerHTML=`<img src="${item.img}"><h4>${item.name}</h4><p style="font-size:13px;color:${item.description? 'var(--muted)':'transparent'}">${item.description||''}</p>`;
+    div.onclick = ()=> createItemPopup(item);
+    grid.appendChild(div);
+  });
+}
+
+function renderRecent(){
+  const list=document.getElementById('recentList');
+  if(!recent || recent.length===0){ list.innerHTML='<p class="center">No recent donations.</p>'; return; }
+  list.innerHTML='';
+  recent.slice(0,30).forEach(r=>{
+    const d=document.createElement('div'); d.className='request-card';
+    d.innerHTML=`<div style="display:flex;gap:12px;align-items:center"><img src="${r.img}" style="width:70px;height:70px;object-fit:cover;border-radius:8px"><div><strong>${r.name}</strong><div style="font-size:13px;color:var(--muted)">by ${r.owner} • ${new Date(r.time).toLocaleString()}</div></div></div>`;
+    list.appendChild(d);
+  });
+}
+
+function renderDonors(){
+  const grid=document.getElementById('donorGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  // compute counts
+  const scores = users.map(u=>{
+    const score = (u.plants?.length||0) + (u.seeds?.length||0) + (u.exchanges?.length||0);
+    return {name:u.name,email:u.email,avatar:u.avatar||'https://cdn-icons-png.flaticon.com/512/149/149071.png',score,plants:u.plants?.length||0,seeds:u.seeds?.length||0,exchanges:u.exchanges?.length||0};
+  }).sort((a,b)=>b.score-a.score);
+  if(scores.length===0){ grid.innerHTML='<p class="center">No donors yet.</p>'; return; }
+  scores.slice(0,10).forEach(s=>{
+    const el=document.createElement('div'); el.className='donor-card';
+    el.innerHTML=`<img src="${s.avatar}"><div><strong>${s.name}</strong><div style="font-size:13px;color:var(--muted)">${s.score} contributions • ${s.plants} plants • ${s.seeds} seeds • ${s.exchanges} exchanges</div></div>`;
+    grid.appendChild(el);
+  });
+}
+
+function renderGallery(){
+  const grid=document.getElementById('galleryGrid');
+  if(!grid) return;
+  grid.innerHTML='';
+  // show recent images from recent array and events
+  recent.slice(0,12).forEach(r=>{
+    if(r.img){
+      const img=document.createElement('img'); img.src=r.img; grid.appendChild(img);
+    }
+  });
+  events.slice(0,8).forEach(ev=>{
+    if(ev.img) {
+      const img=document.createElement('img'); img.src=ev.img; grid.appendChild(img);
+    } else {
+      // simple placeholder card as image
+      const div=document.createElement('div'); div.style.background='#f0f8f0'; div.style.padding='12px'; div.style.borderRadius='8px';
+      div.innerHTML=`<strong>${ev.title}</strong><div style="font-size:12px;color:var(--muted)">${ev.date}</div>`;
+      grid.appendChild(div);
+    }
+  });
+}
+
+/* ---------- EVENTS ---------- */
+function addEvent(){
+  const title=document.getElementById('eventTitle').value.trim();
+  const date=document.getElementById('eventDate').value;
+  const desc=document.getElementById('eventDesc').value.trim();
+  if(!title||!date){ alert('Give title & date'); return; }
+  const ev={id:uid(),title,date,desc};
+  events.unshift(ev);
+  persistEvents();
+  renderGallery();
+  document.getElementById('eventTitle').value=''; document.getElementById('eventDate').value=''; document.getElementById('eventDesc').value='';
+  alert('Event added');
+}
+
+/* ---------- PROFILE ---------- */
+function previewProfilePic(e){
+  const f=e.target.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=e2=>{ document.getElementById('editProfilePic').src=e2.target.result; document.getElementById('profilePic').src=e2.target.result; }
+  r.readAsDataURL(f);
+}
+function loadProfile(){
+  if(!currentUser) return;
+  document.getElementById('profileLabel').textContent=currentUser.name;
+  document.getElementById('profileEmail').textContent=currentUser.email;
+  document.getElementById('profilePic').src=currentUser.avatar||'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  // profile edit inputs
+  document.getElementById('editProfilePic').src=currentUser.avatar||'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+  document.getElementById('profileNameInput').value=currentUser.name||'';
+  document.getElementById('profileEmailInput').value=currentUser.email||'';
+  document.getElementById('profileAddressInput').value=currentUser.address||'';
+  // my donations
+  updateProfileItems();
+}
+function saveProfile(){
+  if(!currentUser){ alert('Login first'); return; }
+  const name=document.getElementById('profileNameInput').value.trim();
+  const email=document.getElementById('profileEmailInput').value.trim().toLowerCase();
+  const address=document.getElementById('profileAddressInput').value.trim();
+  // avatar from editProfilePic src
+  const avatar=document.getElementById('editProfilePic').src;
+  if(!name||!email){ alert('Name & email required'); return; }
+  // check if email conflict
+  const other = users.find(u=>u.email===email && u.email!==currentUser.email);
+  if(other){ alert('Email already taken'); return; }
+  // update currentUser: need to update array correctly even if email changed
+  const prevEmail = currentUser.email;
+  currentUser.name=name; currentUser.email=email; currentUser.address=address; currentUser.avatar=avatar;
+  // update users array: replace the user object identified by prevEmail
+  users = users.map(u => (u.email===prevEmail ? currentUser : u));
+  persistUsers();
+  loadProfile();
+  renderDonors();
+  alert('Profile saved');
+}
+
+/* delete account - removes user from users and logs out */
+function deleteAccount(){
+  if(!currentUser) { alert('Login first'); return; }
+  if(!confirm('Are you sure you want to DELETE your account? This action cannot be undone.')) return;
+  users = users.filter(u=>u.email!==currentUser.email);
+  persistUsers();
+  alert('Account deleted');
+  // logout and reset UI
+  currentUser = null;
+  localStorage.removeItem('sessionUser');
+  document.getElementById('auth').style.display='flex';
+  document.getElementById('sidebar').style.display='none';
+  document.getElementById('content').style.display='none';
+}
+
+/* helper to focus profile editing area */
+function openProfileEdit(){
+  showSection('profile');
+  // small visual: focus name input
+  setTimeout(()=>{ document.getElementById('profileNameInput').focus(); }, 200);
+}
+
+function updateProfileItems(){
+  // populate my plants/seeds/exchanges in profile
+  const mp=document.getElementById('myPlants'); mp.innerHTML='';
+  const ms=document.getElementById('mySeeds'); ms.innerHTML='';
+  const me=document.getElementById('myExSeeds'); me.innerHTML='';
+  (currentUser.plants||[]).forEach(p=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`<img src="${p.img}"><h4>${p.name}</h4><p style="font-size:13px;color:var(--muted)">${p.description}</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <button class="small-btn ghost" onclick="editMyPlant('${p.id}')">Edit</button>
+        <button class="small-btn" onclick="deleteMyPlant('${p.id}')">Delete</button>
+      </div>`;
+    mp.appendChild(d);
+  });
+  (currentUser.seeds||[]).forEach(s=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`<img src="${s.img}"><h4>${s.name}</h4><p style="font-size:13px;color:var(--muted)">Qty: ${s.quantity}</p><p style="font-size:13px;color:var(--muted)">${s.description}</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <button class="small-btn ghost" onclick="editMySeed('${s.id}')">Edit</button>
+        <button class="small-btn" onclick="deleteMySeed('${s.id}')">Delete</button>
+      </div>`;
+    ms.appendChild(d);
+  });
+  (currentUser.exchanges||[]).forEach(e=>{
+    const d=document.createElement('div'); d.className='card';
+    d.innerHTML=`<img src="${e.img}"><h4>${e.name}</h4><p style="font-size:13px;color:var(--muted)">Qty: ${e.quantity}</p><p style="font-size:13px;color:var(--muted)">${e.description}</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <button class="small-btn ghost" onclick="editMyExchange('${e.id}')">Edit</button>
+        <button class="small-btn" onclick="deleteMyExchange('${e.id}')">Delete</button>
+      </div>`;
+    me.appendChild(d);
+  });
+}
+
+/* ---------- Edit/Delete handlers for profile items ---------- */
+/* Edit plant: prompt for name/location/description (simple inline editor) */
+function editMyPlant(id){
+  const plant = (currentUser.plants||[]).find(p=>p.id===id);
+  if(!plant) return;
+  const newName = prompt('New plant name:', plant.name);
+  if(newName===null) return; // cancelled
+  const newLocation = prompt('New location:', plant.location || '');
+  if(newLocation===null) return;
+  const newDesc = prompt('New description:', plant.description || '');
+  if(newDesc===null) return;
+  plant.name = newName.trim()||plant.name;
+  plant.location = newLocation.trim()||plant.location;
+  plant.description = newDesc.trim()||plant.description;
+  // update users array and persist
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  alert('Plant updated');
+}
+
+/* Delete plant */
+function deleteMyPlant(id){
+  if(!confirm('Delete this plant?')) return;
+  currentUser.plants = (currentUser.plants||[]).filter(p=>p.id!==id);
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  updateStats();
+  alert('Plant deleted');
+}
+
+/* Edit seed */
+function editMySeed(id){
+  const seed = (currentUser.seeds||[]).find(s=>s.id===id);
+  if(!seed) return;
+  const newName = prompt('New seed name:', seed.name);
+  if(newName===null) return;
+  const newQty = prompt('New quantity:', seed.quantity || '');
+  if(newQty===null) return;
+  const newDesc = prompt('New description:', seed.description || '');
+  if(newDesc===null) return;
+  seed.name = newName.trim()||seed.name;
+  seed.quantity = newQty.trim()||seed.quantity;
+  seed.description = newDesc.trim()||seed.description;
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  alert('Seed updated');
+}
+
+/* Delete seed */
+function deleteMySeed(id){
+  if(!confirm('Delete this seed?')) return;
+  currentUser.seeds = (currentUser.seeds||[]).filter(s=>s.id!==id);
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  updateStats();
+  alert('Seed deleted');
+}
+
+/* Edit exchange */
+function editMyExchange(id){
+  const ex = (currentUser.exchanges||[]).find(e=>e.id===id);
+  if(!ex) return;
+  const newName = prompt('New name:', ex.name);
+  if(newName===null) return;
+  const newQty = prompt('New quantity:', ex.quantity || '');
+  if(newQty===null) return;
+  const newDesc = prompt('New description:', ex.description || '');
+  if(newDesc===null) return;
+  ex.name = newName.trim()||ex.name;
+  ex.quantity = newQty.trim()||ex.quantity;
+  ex.description = newDesc.trim()||ex.description;
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  alert('Exchange updated');
+}
+
+/* Delete exchange */
+function deleteMyExchange(id){
+  if(!confirm('Delete this exchange?')) return;
+  currentUser.exchanges = (currentUser.exchanges||[]).filter(e=>e.id!==id);
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  updateStats();
+  alert('Exchange deleted');
+}
+
+/* ---------- COMMENTS (Plant care) ---------- */
+function renderComments(){
+  const list=document.getElementById('discussionList'); if(!list) return; list.innerHTML='';
+  if(!comments || comments.length===0){ list.innerHTML='<p class="center">No tips yet. Share the first!</p>'; return; }
+  comments.forEach(c=>{
+    const div=document.createElement('div'); div.className='comment-box'; div.innerHTML=`<div class="comment-author">${c.author}</div><div class="comment-msg">${c.msg}</div><div style="font-size:12px;color:var(--muted)">${new Date(c.time).toLocaleString()}</div>`;
+    list.appendChild(div);
+  });
+}
+function addComment(){
+  if(!currentUser){ alert('Login to post'); return; }
+  const msg=document.getElementById('commentInput').value.trim();
+  if(!msg){ alert('Enter comment'); return; }
+  comments.unshift({author:currentUser.name,msg,time:Date.now()});
+  persistComments();
+  document.getElementById('commentInput').value='';
+  renderComments();
+}
+
+/* Requests */
+function displayRequests(){
+  const list=document.getElementById('requestList'); list.innerHTML='';
+  const reqs=currentUser.requests||[];
+  if(!reqs.length){ list.innerHTML='<p class="center">No requests yet.</p>'; return; }
+  reqs.forEach(r=>{
+    const card=document.createElement('div'); card.className='request-card';
+    card.innerHTML=`<p><strong>From:</strong> ${r.from}</p><p><strong>Plant:</strong> ${r.plantName}</p><p>${r.message}</p><p style="font-size:12px;color:#666">${new Date(r.time).toLocaleString()}</p>`;
+    const row=document.createElement('div'); row.style.display='flex'; row.style.gap='8px'; row.style.marginTop='8px';
+    const accept=document.createElement('button'); accept.className='small-btn'; accept.textContent='Accept'; accept.onclick=()=>acceptRequest(r.id);
+    const reject=document.createElement('button'); reject.className='small-btn ghost'; reject.textContent='Reject'; reject.onclick=()=>rejectRequest(r.id);
+    row.appendChild(accept); row.appendChild(reject); card.appendChild(row); list.appendChild(card);
+  });
+}
+
+function acceptRequest(id){
+  if(!confirm('Confirm donation?')) return;
+  const idx=currentUser.requests.findIndex(r=>r.id===id); if(idx===-1)return;
+  const r=currentUser.requests[idx]; currentUser.plants=currentUser.plants.filter(p=>p.id!==r.plantId); currentUser.requests.splice(idx,1);
+  const requester=users.find(u=>u.email===r.from); if(requester){ requester.notifications=requester.notifications||[]; requester.notifications.push({message:`Your request for "${r.plantName}" accepted by ${currentUser.name}`, time:new Date().toISOString()}); users=users.map(u=>u.email===requester.email?requester:u);}
+  users = users.map(u=>u.email===currentUser.email?currentUser:u); persistUsers(); rebuildAllPlants(); displayRequests(); updateProfilePlants(); refreshHome(); alert('Donation confirmed.');
+}
+
+function rejectRequest(id){
+  if(!confirm('Reject request?')) return;
+  currentUser.requests=currentUser.requests.filter(r=>r.id!==id);
+  users = users.map(u=>u.email===currentUser.email?currentUser:u); persistUsers(); displayRequests();
+}
+
+
+
+/* ---------- STATS ---------- */
+function updateStats(){
+  rebuildAllItems();
+  document.getElementById('statUsers').textContent = users.length;
+  document.getElementById('statPlants').textContent = allPlants.length;
+  document.getElementById('statSeeds').textContent = allSeeds.length;
+  document.getElementById('statExchanges').textContent = allExSeeds.length;
+}
+
+/* ---------- SECTION SWITCH ---------- */
+function showSection(name){
+  const sections = document.querySelectorAll('.content > section');
+  sections.forEach(s=>s.classList.add('hidden'));
+  // map friendly names
+  const map = {
+    home:'homeSection', donate:'donateSection', donateSeeds:'donateSeedsSection', exchangeSeeds:'exchangeSeedsSection',
+    requests:'requestsSection', care:'careSection', recent:'recentSection', donors:'donorsSection',
+    stats:'statsSection', gallery:'gallerySection', faq:'faqSection', profile:'profileSection'
+  };
+  const id = map[name] || name+'Section';
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('hidden');
+  // refresh small things
+  if(id==='profileSection') { loadProfile(); updateProfileItems(); displayRequests(); }
+  if(id==='donorsSection') renderDonors();
+  if(id==='statsSection') updateStats();
+  if(id==='gallerySection') renderGallery();
+  if(id==='recentSection') renderRecent();
+  if(id==='careSection') renderComments();
+  if(id==='homeSection') renderHome();
+}
+
+/* ---------- UTIL: load saved users into UI when app started (for demo) ---------- */
+(function seedDemoData(){
+  if(users.length===0){
+    const demo = [
+      {name:'Anita Rao',email:'anita@example.com',password:'pass',address:'Pune',avatar:'https://randomuser.me/api/portraits/women/10.jpg',plants:[],seeds:[],exchanges:[],requests:[]},
+      {name:'Ravi Kumar',email:'ravi@example.com',password:'pass',address:'Bengaluru',avatar:'https://randomuser.me/api/portraits/men/11.jpg',plants:[],seeds:[],exchanges:[],requests:[]},
+      {name:'Priya Nair',email:'priya@example.com',password:'pass',address:'Chennai',avatar:'https://randomuser.me/api/portraits/women/12.jpg',plants:[],seeds:[],exchanges:[],requests:[]}
+    ];
+    users = demo;
+    persistUsers();
+  }
+  rebuildAllItems();
+  // If no events, seed one
+  if(events.length===0){ events=[{id:uid(),title:'Community Tree Plantation',date:new Date().toISOString().slice(0,10),desc:'Join us!'}]; persistEvents(); }
+})();
+function deleteMyExchange(id){
+  if(!confirm('Delete this exchange?')) return;
+  currentUser.exchanges = (currentUser.exchanges||[]).filter(e=>e.id!==id);
+  users = users.map(u=>u.email===currentUser.email?currentUser:u);
+  persistUsers();
+  rebuildAllItems();
+  renderHome();
+  updateProfileItems();
+  renderDonors();
+  updateStats();
+  alert('Exchange deleted');
+}
+
+/* ---------- COMMENTS ---------- */
+function renderComments(){
+  const list=document.getElementById('discussionList');
+  list.innerHTML='';
+  comments.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='comment-box';
+    d.innerHTML=`<div class="comment-author">${c.author}</div><div>${c.text}</div>`;
+    list.appendChild(d);
+  });
+}
+
+function addComment(){
+  const text=document.getElementById('commentInput').value.trim();
+  if(!text){ alert('Enter comment'); return; }
+  const c={author:currentUser.name,text, time:Date.now()};
+  comments.push(c);
+  persistComments();
+  renderComments();
+  document.getElementById('commentInput').value='';
+}
+
+/* ---------- UTILITY ---------- */
+function showSection(section){
+  const sections=['home','donate','donateSeeds','exchangeSeeds','requests','care','recent','donors','stats','gallery','faq','profile'];
+  sections.forEach(s=>{
+    const el=document.getElementById(s+'Section');
+    if(el) el.classList.add('hidden');
+  });
+  const target=document.getElementById(section+'Section');
+  if(target) target.classList.remove('hidden');
+}
+
+/* Update statistics */
+function updateStats(){
+  document.getElementById('statUsers').textContent = users.length;
+  const plantsCount = users.reduce((acc,u)=>acc+(u.plants?.length||0),0);
+  const seedsCount = users.reduce((acc,u)=>acc+(u.seeds?.length||0),0);
+  const exchangesCount = users.reduce((acc,u)=>acc+(u.exchanges?.length||0),0);
+  document.getElementById('statPlants').textContent = plantsCount;
+  document.getElementById('statSeeds').textContent = seedsCount;
+  document.getElementById('statExchanges').textContent = exchangesCount;
+}
+
+/* Create item popup for home grid items (with full info) */
+function createItemPopup(item){
+  document.getElementById('popupImg').src=item.img||'';
+  document.getElementById('popupName').textContent=item.name||'';
+  document.getElementById('popupLocation').textContent=item.location||'N/A';
+  document.getElementById('popupDescription').textContent=item.description||'';
+  document.getElementById('requestMessage').value='';
+  document.getElementById('plantPopup').style.display='flex';
+  currentPlantId=item.id;
+}
+
+
+
+
+/* ---------- RENDER INITIAL small things ---------- */
+renderGallery();
+renderDonors();
+renderRecent();
+renderComments();
+updateStats();
+
+/* Auto-enter if session exists */
+const session = localStorage.getItem('sessionUser');
+if(session){
+  const u = users.find(x=>x.email===session);
+  if(u){ currentUser=u; enterDashboard(); }
+}
+</script>
+</body>
+</html>
